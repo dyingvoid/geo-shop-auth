@@ -18,7 +18,7 @@ func (ps *PasswordService) Hash(password string) (string, error) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		return "", fmt.Errorf("error hashing password: %w", err)
+		return "", fmt.Errorf("commonerror hashing password: %w", err)
 	}
 
 	return string(bytes), nil
@@ -34,7 +34,7 @@ func hashPassword(password string) (string, error) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		return "", fmt.Errorf("error hashing password: %w", err)
+		return "", fmt.Errorf("commonerror hashing password: %w", err)
 	}
 
 	return string(bytes), nil

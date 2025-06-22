@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"geo-shop-auth/internal/application/common/error"
+	"geo-shop-auth/internal/application/common/commonerror"
 	"geo-shop-auth/internal/application/usecase"
 	"geo-shop-auth/internal/domain"
 	"geo-shop-auth/internal/mocks"
@@ -56,7 +56,7 @@ func TestLogin(t *testing.T) {
 		}
 		_, err := usecase.Login(req, mockRepo, mTokenService, mPasswordService)
 		assert.Error(t, err)
-		var valErr *error.ValidationError
+		var valErr *commonerror.ValidationError
 		assert.True(t, errors.As(err, &valErr))
 	})
 

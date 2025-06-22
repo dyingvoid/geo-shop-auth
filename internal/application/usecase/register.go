@@ -1,8 +1,9 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
-	"geo-shop-auth/internal/application/common/error"
+	"geo-shop-auth/internal/application/common/commonerror"
 	"geo-shop-auth/internal/application/repositories"
 	"geo-shop-auth/internal/domain"
 	"golang.org/x/crypto/bcrypt"
@@ -10,23 +11,25 @@ import (
 )
 
 func Register(
-	req RegisterRequest,
+	ctx context.Context,
+	req *RegisterRequest,
 	rep repositories.UserRepository,
 ) error {
 	err := req.Validate()
 	if err != nil {
-		return fmt.Errorf("error validating request: %w", err)
+		return fmt.Errorf("commonerror validating request: %w", err)
 	}
 
 	user, err := rep.FindUserNickOrEmail(
+		ctx,
 		req.Email,
 		req.Nickname,
 	)
 	if err != nil {
-		return fmt.Errorf("error fetching user: %w", err)
+		return fmt.Errorf("commonerror fetching user: %w", err)
 	}
 	if user != nil {
-		return &error.DuplicateError{
+		return &commonerror.DuplicateError{
 			Msg: "user already exists",
 		}
 	}
@@ -36,9 +39,9 @@ func Register(
 		return err
 	}
 
-	_, err = rep.Insert(domain.NewUser(req.Email, req.Nickname, hashed))
+	_, err = rep.Insert(ctx, domain.NewUser(req.Email, req.Nickname, hashed))
 	if err != nil {
-		return fmt.Errorf("error inserting user: %w", err)
+		return fmt.Errorf("commonerror inserting user: %w", err)
 	}
 
 	return nil
@@ -50,7 +53,7 @@ func hashPassword(password string) (string, error) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		return "", fmt.Errorf("error hashing password: %w", err)
+		return "", fmt.Errorf("commonerror hashing password: %w", err)
 	}
 
 	return string(bytes), nil
@@ -64,14 +67,14 @@ type RegisterRequest struct {
 
 func (r *RegisterRequest) Validate() error {
 	if r.Password == "" || r.Nickname == "" {
-		return &error.ValidationError{
+		return &commonerror.ValidationError{
 			Msg: "password or nickname is empty",
 		}
 	}
 	if len(r.Email) > 0 {
 		_, err := mail.ParseAddress(r.Email)
 		if err != nil {
-			return &error.ValidationError{
+			return &commonerror.ValidationError{
 				Msg: fmt.Sprintf("invalid email address: %s, %v", r.Email, err),
 			}
 		}

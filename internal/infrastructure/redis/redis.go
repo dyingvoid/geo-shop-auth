@@ -2,7 +2,7 @@ package redis
 
 import "github.com/redis/go-redis/v9"
 
-func NewRedis(opts RedisOptions) *redis.Client {
+func NewRedis(opts Options) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     opts.Addr,
 		Password: opts.Password,
@@ -11,7 +11,7 @@ func NewRedis(opts RedisOptions) *redis.Client {
 	return rdb
 }
 
-type RedisOptions struct {
+type Options struct {
 	Addr     string
 	Password string
 	DB       int

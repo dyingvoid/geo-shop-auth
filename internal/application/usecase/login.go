@@ -1,26 +1,28 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
-	"geo-shop-auth/internal/application/common/error"
+	"geo-shop-auth/internal/application/common/commonerror"
 	"geo-shop-auth/internal/application/repositories"
 	"geo-shop-auth/internal/application/services"
 )
 
 func Login(
-	req LoginRequest,
+	ctx context.Context,
+	req *LoginRequest,
 	userRep repositories.UserRepository,
 	tokenService services.TokenServicer,
 	passwordService services.PasswordServicer,
 ) (LoginResponse, error) {
 	err := req.Validate()
 	if err != nil {
-		return LoginResponse{}, fmt.Errorf("error validating login request: %w", err)
+		return LoginResponse{}, fmt.Errorf("commonerror validating login request: %w", err)
 	}
 
-	usr, err := userRep.FindUserNickname(req.Nickname)
+	usr, err := userRep.FindUserNickname(ctx, req.Nickname)
 	if err != nil {
-		return LoginResponse{}, fmt.Errorf("error fetching user data: %w", err)
+		return LoginResponse{}, fmt.Errorf("commonerror fetching user data: %w", err)
 	}
 	if usr == nil {
 		return LoginResponse{}, fmt.Errorf("invalid user or password")
@@ -31,9 +33,9 @@ func Login(
 		return LoginResponse{}, fmt.Errorf("invalid user or password")
 	}
 
-	tokenPair, err := tokenService.GenerateTokens()
+	tokenPair, err := tokenService.GenerateTokens(ctx)
 	if err != nil {
-		return LoginResponse{}, fmt.Errorf("error generating tokens: %w", err)
+		return LoginResponse{}, fmt.Errorf("commonerror generating tokens: %w", err)
 	}
 
 	return LoginResponse{
@@ -49,7 +51,7 @@ type LoginRequest struct {
 
 func (r *LoginRequest) Validate() error {
 	if r.Nickname == "" || r.Password == "" {
-		return &error.ValidationError{
+		return &commonerror.ValidationError{
 			Msg: "nickname and password are required",
 		}
 	}

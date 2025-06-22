@@ -1,0 +1,23 @@
+version: '3'
+
+vars:
+  postgres_local: postgres://postgres:postgres@localhost:5432/geo-shop?sslmode=disable
+  migrations_path: ./migrations
+  go_out: ./internal/api/gen/
+  go_grpc_out: ./internal/api/gen/
+  proto_path: ./internal/api/proto/*.proto
+
+tasks:
+  gen-grpc:
+    desc: Generate Go code from gRPC proto files
+    cmds:
+      - protoc --go_out={{.go_out}} --go-grpc_out={{.go_grpc_out}} {{.proto_path}}
+  migrate:
+    desc: Run database migrations using migrate tool
+    cmds:
+      - migrate -path {{.migrations_path}} -database {{.postgres_local}} up
+
+  test:
+    desc: Run all Go package tests
+    cmds:
+      - go test ./...

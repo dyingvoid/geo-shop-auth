@@ -1,4 +1,4 @@
-package error
+package commonerror
 
 type ValidationError struct {
 	Msg string

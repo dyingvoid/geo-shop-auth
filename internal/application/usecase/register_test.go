@@ -2,7 +2,7 @@ package usecase_test
 
 import (
 	"errors"
-	"geo-shop-auth/internal/application/common/error"
+	"geo-shop-auth/internal/application/common/commonerror"
 	"geo-shop-auth/internal/application/usecase"
 	"geo-shop-auth/internal/domain"
 	"geo-shop-auth/internal/mocks"
@@ -45,7 +45,7 @@ func TestRegister(t *testing.T) {
 		err := usecase.Register(req, mockRepo)
 
 		assert.Error(t, err)
-		var expectedErr *error.ValidationError
+		var expectedErr *commonerror.ValidationError
 		assert.True(t, errors.As(err, &expectedErr))
 		mockRepo.AssertNotCalled(t, "FindUserNickOrEmail")
 	})
@@ -61,7 +61,7 @@ func TestRegister(t *testing.T) {
 		err := usecase.Register(req, mockRepo)
 
 		assert.Error(t, err)
-		var expectedErr *error.ValidationError
+		var expectedErr *commonerror.ValidationError
 		assert.True(t, errors.As(err, &expectedErr))
 		mockRepo.AssertNotCalled(t, "FindUserNickOrEmail")
 	})
@@ -83,7 +83,7 @@ func TestRegister(t *testing.T) {
 		err := usecase.Register(req, mockRepo)
 
 		assert.Error(t, err)
-		var expectedErr *error.DuplicateError
+		var expectedErr *commonerror.DuplicateError
 		assert.True(t, errors.As(err, &expectedErr))
 		mockRepo.AssertNotCalled(t, "Insert")
 	})

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"geo-shop-auth/internal/application/common"
 	"geo-shop-auth/internal/application/repositories"
@@ -25,22 +26,23 @@ func NewTokenService(
 	}
 }
 
-func (ts *TokenService) GenerateTokens() (domain.TokenPair, error) {
+func (ts *TokenService) GenerateTokens(ctx context.Context) (domain.TokenPair, error) {
 	accessToken, err := ts.generateAccessToken()
 	if err != nil {
-		return domain.TokenPair{}, fmt.Errorf("error generating access token: %w", err)
+		return domain.TokenPair{}, fmt.Errorf("commonerror generating access token: %w", err)
 	}
 
 	refreshToken := ts.generateRefreshToken()
-	err = ts.rep.Insert(refreshToken)
+	err = ts.rep.Insert(ctx, refreshToken)
 	if err != nil {
-		return domain.TokenPair{}, fmt.Errorf("error storing refresh token: %w", err)
+		return domain.TokenPair{}, fmt.Errorf("commonerror storing refresh token: %w", err)
 	}
 
 	return domain.TokenPair{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
 func (ts *TokenService) ParseAccessToken(
+	ctx context.Context,
 	tokenString string,
 ) (*domain.AccessToken, error) {
 	token, err := jwt.ParseWithClaims(
@@ -59,7 +61,7 @@ func (ts *TokenService) ParseAccessToken(
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing token: %w", err)
+		return nil, fmt.Errorf("commonerror parsing token: %w", err)
 	}
 
 	if claims, ok := token.Claims.(*domain.AccTknClaims); ok {
@@ -73,11 +75,12 @@ func (ts *TokenService) ParseAccessToken(
 }
 
 func (ts *TokenService) FindRefreshToken(
+	ctx context.Context,
 	tokenString string,
 ) (*domain.RefreshToken, error) {
-	tkn, err := ts.rep.FindToken(tokenString)
+	tkn, err := ts.rep.FindToken(ctx, tokenString)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching token: %w", err)
+		return nil, fmt.Errorf("commonerror fetching token: %w", err)
 	}
 
 	return tkn, nil
@@ -95,7 +98,7 @@ func (ts *TokenService) generateAccessToken() (string, error) {
 	token := jwt.NewWithClaims(ts.options.SigningMethod, claims)
 	signedToken, err := token.SignedString(ts.options.SigningKey)
 	if err != nil {
-		return "", fmt.Errorf("error signing access token: %w", err)
+		return "", fmt.Errorf("commonerror signing access token: %w", err)
 	}
 
 	return signedToken, nil

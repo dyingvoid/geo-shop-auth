@@ -1,0 +1,7 @@
+postgres:
+  url: "postgresql://postgres:postgres@localhost:5432/geo-shop?sslmode=disable"
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+port: ":50051"

@@ -1,11 +1,14 @@
 package services
 
-import "geo-shop-auth/internal/domain"
+import (
+	"context"
+	"geo-shop-auth/internal/domain"
+)
 
 type TokenServicer interface {
-	GenerateTokens() (domain.TokenPair, error)
-	ParseAccessToken(str string) (*domain.AccessToken, error)
-	FindRefreshToken(str string) (*domain.RefreshToken, error)
+	GenerateTokens(ctx context.Context) (domain.TokenPair, error)
+	ParseAccessToken(ctx context.Context, str string) (*domain.AccessToken, error)
+	FindRefreshToken(ctx context.Context, str string) (*domain.RefreshToken, error)
 }
 
 type PasswordServicer interface {
